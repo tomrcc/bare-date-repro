@@ -1,0 +1,4 @@
+{{/* Doesn't read any dates, so a failure here comes from the site build, not this template. */}}
+<ul class="post-list">
+	{{ range site.RegularPages }}<li>{{ .Title }}</li>{{ end }}
+</ul>

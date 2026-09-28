@@ -1,0 +1,36 @@
+{{/*
+  Diagnostic only: logs what the CloudCannon Visual Editor API returns for each
+  file's `date`, and the exact front matter string editable-regions sends to
+  the Hugo renderer (`JSON.stringify(await file.data.get())`). Does nothing
+  outside the editor.
+*/}}
+<script type="module">
+	if (window.inEditorMode) {
+		const probe = async () => {
+			const api = window.CloudCannonAPI.useVersion("v1", true);
+			for (const collection of await api.collections()) {
+				for (const file of await collection.items()) {
+					const data = await file.data.get();
+					if (!data || !("date" in data)) continue;
+					const d = data.date;
+					let serialized;
+					try {
+						serialized = JSON.stringify(data);
+					} catch (err) {
+						serialized = `JSON.stringify threw: ${err}`;
+					}
+					console.log("[date-probe]", file.path, {
+						typeof: typeof d,
+						tag: Object.prototype.toString.call(d),
+						instanceofDate: d instanceof Date,
+						constructor: d?.constructor?.name,
+						value: d,
+						sentToHugo: `---\n${serialized}\n---\n`,
+					});
+				}
+			}
+		};
+		if (window.CloudCannonAPI) probe();
+		else document.addEventListener("cloudcannon:load", probe, { once: true });
+	}
+</script>

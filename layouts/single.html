@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>{{ .Title }}</title>
+		{{ partial "editable-regions" . }}
+		{{ partial "date-probe.html" . }}
+	</head>
+	<body>
+		<h1 data-editable="text" data-prop="title">{{ .Title }}</h1>
+		<div data-editable="component" data-component="post-list">
+			{{- partial "post-list.html" . -}}
+		</div>
+	</body>
+</html>
