@@ -9,4 +9,8 @@ collections_config:
   # shim reads `CloudCannon.collection("posts")`.
   posts:
     path: src/content/posts
-    url: "/posts/{slug}/"
+    url: "/posts/[slug]/"
+    _enabled_editors:
+      - visual
+      - content
+      - data

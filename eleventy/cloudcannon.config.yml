@@ -11,4 +11,8 @@ collections_config:
     path: src/posts
     glob:
       - "*.md"
-    url: "/posts/{slug}/"
+    url: "/posts/[slug]/"
+    _enabled_editors:
+      - visual
+      - content
+      - data
