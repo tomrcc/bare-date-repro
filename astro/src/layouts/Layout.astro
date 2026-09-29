@@ -1,0 +1,45 @@
+---
+const { title } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>{title}</title>
+		<script>
+			if (window.inEditorMode) {
+				import("../scripts/register-components.js").catch((error) => {
+					console.warn("Failed to load CloudCannon component registration:", error);
+				});
+			}
+		</script>
+		<script is:inline>
+			// Diagnostic only: logs what the CloudCannon Visual Editor API returns
+			// for each file's `date`, and whether JavaScript's Date can parse it.
+			// Does nothing outside the editor.
+			if (window.inEditorMode) {
+				const probe = async () => {
+					const api = window.CloudCannonAPI.useVersion("v1", true);
+					for (const collection of await api.collections()) {
+						for (const file of await collection.items()) {
+							const data = await file.data.get();
+							if (!data || !("date" in data)) continue;
+							const d = data.date;
+							console.log("[date-probe]", file.path, {
+								typeof: typeof d,
+								tag: Object.prototype.toString.call(d),
+								value: d,
+								newDate: String(new Date(d)),
+							});
+						}
+					}
+				};
+				if (window.CloudCannonAPI) probe();
+				else document.addEventListener("cloudcannon:load", probe, { once: true });
+			}
+		</script>
+	</head>
+	<body>
+		<slot />
+	</body>
+</html>

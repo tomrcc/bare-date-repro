@@ -1,0 +1,6 @@
+{%- comment -%} Doesn't read any dates. It keeps working in the editor, unlike Hugo's. {%- endcomment -%}
+<ul class="post-list">
+	{%- for post in collections.posts %}
+	<li>{{ post.data.title }}</li>
+	{%- endfor %}
+</ul>

@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=https://github.com/cloudcannon/configuration-types/releases/latest/download/cloudcannon-config.latest.schema.json
+collections_config:
+  pages:
+    path: src/content/pages
+    glob:
+      - "index.md"
+    url: /
+  # The key must match the Astro collection name: the editor's astro:content
+  # shim reads `CloudCannon.collection("posts")`.
+  posts:
+    path: src/content/posts
+    url: "/posts/{slug}/"

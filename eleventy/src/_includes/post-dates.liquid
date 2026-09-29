@@ -1,0 +1,14 @@
+{%- comment -%}
+  Three common ways to print a post's date. In the editor, for the annotated
+  strings the API returns: `post.date` is missing, so dateToRfc3339 prints "",
+  and Liquid's `date` filter can't parse the raw string, so it prints it as is.
+{%- endcomment -%}
+<ul class="post-dates">
+	{%- for post in collections.posts %}
+	<li>
+		{{ post.data.title }}:
+		post.date = [{{ post.date | dateToRfc3339 }}],
+		post.data.date | date = [{{ post.data.date | date: "%Y-%m-%d %H:%M", "UTC" }}]
+	</li>
+	{%- endfor %}
+</ul>

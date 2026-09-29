@@ -1,0 +1,24 @@
+---
+// The common `<time>` pattern. `new Date()` accepts both the build's Date
+// objects and the editor's plain strings, so the quoted control works in both.
+// For the annotated strings the editor gets, it's an Invalid Date, and
+// toISOString() throws `RangeError: Invalid time value`.
+import { getCollection } from "astro:content";
+
+const posts = await getCollection("posts");
+---
+<ul class="post-dates">
+	{
+		posts.map((post) => {
+			const date = new Date(post.data.date);
+			return (
+				<li>
+					{post.data.title}:{" "}
+					<time datetime={date.toISOString()}>
+						{date.toLocaleString("en-AU", { timeZone: "UTC" })}
+					</time>
+				</li>
+			);
+		})
+	}
+</ul>

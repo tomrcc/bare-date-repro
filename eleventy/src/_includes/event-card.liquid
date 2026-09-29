@@ -1,0 +1,5 @@
+{%- comment -%} Reads a date from its props. {%- endcomment -%}
+<section class="event-card">
+	<h2>{{ name }}</h2>
+	<p>Starts: [{{ starts | dateToRfc3339 }}]</p>
+</section>

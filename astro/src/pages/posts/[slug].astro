@@ -1,0 +1,18 @@
+---
+import { getCollection } from "astro:content";
+import PostList from "../../components/PostList.astro";
+import Layout from "../../layouts/Layout.astro";
+
+export async function getStaticPaths() {
+	const posts = await getCollection("posts");
+	return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+---
+<Layout title={post.data.title}>
+	<h1 data-editable="text" data-prop="title">{post.data.title}</h1>
+	<editable-component data-component="post-list">
+		<PostList />
+	</editable-component>
+</Layout>

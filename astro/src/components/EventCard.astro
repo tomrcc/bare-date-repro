@@ -1,0 +1,10 @@
+---
+// Reads a date from its props. In the editor it renders "Invalid Date"
+// instead of throwing.
+const { name, starts } = Astro.props;
+const date = new Date(starts);
+---
+<section class="event-card">
+	<h2>{name}</h2>
+	<p>Starts: {date.toLocaleString("en-AU", { timeZone: "UTC" })} (UTC)</p>
+</section>

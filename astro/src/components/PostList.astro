@@ -1,0 +1,9 @@
+---
+// Doesn't read any dates. It keeps working in the editor, unlike Hugo's.
+import { getCollection } from "astro:content";
+
+const posts = await getCollection("posts");
+---
+<ul class="post-list">
+	{posts.map((post) => <li>{post.data.title}</li>)}
+</ul>

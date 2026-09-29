@@ -1,0 +1,10 @@
+{
+	"ssg": "astro",
+	"mode": "hosted",
+	"build": {
+		"install_command": "npm i",
+		"build_command": "npm run build",
+		"output_path": "dist",
+		"node_version": "file"
+	}
+}

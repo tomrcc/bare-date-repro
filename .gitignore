@@ -1,4 +1,16 @@
-public/
-resources/
-.hugo_build.lock
+# Shared
+node_modules/
 .cloudcannon/migration/
+.DS_Store
+
+# Hugo
+/hugo/public/
+/hugo/resources/
+.hugo_build.lock
+
+# Astro (astro/public/ is Astro's static dir, so don't ignore it)
+/astro/dist/
+/astro/.astro/
+
+# Eleventy
+/eleventy/_site/

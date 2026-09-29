@@ -1,0 +1,28 @@
+---
+import { getEntry } from "astro:content";
+import Card from "../components/Card.astro";
+import EventCard from "../components/EventCard.astro";
+import PostDates from "../components/PostDates.astro";
+import PostList from "../components/PostList.astro";
+import Layout from "../layouts/Layout.astro";
+
+const page = await getEntry("pages", "index");
+if (!page) throw new Error("Missing src/content/pages/index.md");
+const { title, date, card, event } = page.data;
+---
+<Layout title={title}>
+	<h1>{title}</h1>
+	<p>Page date: {date.toISOString().slice(0, 10)}</p>
+	<editable-component data-component="card" data-prop="card">
+		<Card {...card} />
+	</editable-component>
+	<editable-component data-component="event-card" data-prop="event">
+		<EventCard {...event} />
+	</editable-component>
+	<editable-component data-component="post-list">
+		<PostList />
+	</editable-component>
+	<editable-component data-component="post-dates">
+		<PostDates />
+	</editable-component>
+</Layout>

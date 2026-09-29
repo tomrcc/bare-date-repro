@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		{% include "head" %}
+	</head>
+	<body>
+		<h1 data-editable="text" data-prop="title">{{ title }}</h1>
+		<div data-editable="component" data-component="post-list">
+			{% include "post-list" %}
+		</div>
+	</body>
+</html>

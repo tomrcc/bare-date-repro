@@ -1,72 +1,54 @@
-# Hugo editable-regions: bare YAML datetimes break the Visual Editor
+# editable-regions: bare YAML datetimes in the Visual Editor
 
-Minimal Hugo site for reproducing a Visual Editor failure in
+Minimal Hugo, Astro, and Eleventy sites that reproduce the same Visual Editor
+problem in
 [`CloudCannon/editable-regions`](https://github.com/CloudCannon/editable-regions)
-(`v0.0.21`, Hugo `0.164.0`). The module is vendored in `_vendor/`, so the build
-doesn't need Go.
+`v0.0.21`. Each folder is a standalone site with the same content, its own
+CloudCannon config, and its own README with steps and details.
 
-`hugo` builds this site cleanly. Every date below is valid for Hugo.
+| Folder | SSG | What happens in the Visual Editor |
+| --- | --- | --- |
+| [`hugo/`](hugo/) | Hugo 0.164.0 | **Every component errors**, including ones that never read a date, and they stay broken after edits. |
+| [`astro/`](astro/) | Astro 7.3 | Components that format a date throw (`RangeError: Invalid time value`) or render "Invalid Date". Other components work. |
+| [`eleventy/`](eleventy/) | Eleventy 3.1 | Nothing errors, but dates come out blank or as the raw API string. |
 
-## Steps
-
-1. Create a CloudCannon site from this repo, or run `cloudcannon dev public`
-   after building. `.cloudcannon/initial-site-settings.json` sets Hugo `0.164.0`.
-2. Open the Home page in the Visual Editor.
-
-## Expected
-
-The `card` and `post-list` components render.
-
-## Actual
-
-The page loads briefly, then every component shows an error card:
-
-```
-Failed to render Hugo component "card": editor site build failed:
-build after pending content changes: logged 1 error(s).
-```
-
-This includes `post-list`, which never reads a date. The components stay broken
-after edits.
+Every site builds cleanly, and every date is valid for its SSG. The problem only
+shows up in the Visual Editor.
 
 ## Cause
 
-The CloudCannon API returns bare YAML datetimes as RFC 9557 strings, which add
-a bracketed time-zone annotation to the timestamp. editable-regions passes these
-strings to Hugo unchanged (`JSON.stringify(await file.data.get())` in
-`integrations/hugo/browser/index.ts`), and Hugo can't parse the annotation:
+The CloudCannon Visual Editor API (`file.data.get()`) returns bare YAML
+datetimes as RFC 9557 strings, which add a bracketed time-zone annotation to
+the timestamp. editable-regions passes these strings to the in-browser
+renderers unchanged, and neither Hugo nor JavaScript's `Date` can parse the
+annotation.
 
-```
-ERROR the "date" front matter field is not a parsable date
-```
-
-`layouts/partials/date-probe.html` logs what the API returns for each file in
-the editor:
-
-| File | `date:` in source (unquoted) | `data.get().date` | Hugo 0.164 |
+| `date:` in source (unquoted) | `data.get().date` | Hugo | `new Date()` |
 | --- | --- | --- | --- |
-| `_index.md` | `2026-09-01` | `"2026-09-01T00:00:00Z"` | parses |
-| `bare-variant-1.md` | `2026-09-01T10:30:00Z` | `"2026-09-01T10:30:00+00:00[UTC]"` | **fails** |
-| `bare-variant-2.md` | `2026-09-01T10:30:00` | `"2026-09-01T10:30:00+00:00[UTC]"` | **fails** |
-| `bare-variant-3.md` | `2026-09-01 10:30:00` | `"2026-09-01T10:30:00+00:00[UTC]"` | **fails** |
-| `bare-variant-4.md` | `2026-09-01T10:30:00+10:00` | `"2026-09-01T10:30:00+10:00[+10:00]"` | **fails** |
-| `bare-variant-5.md` | `2026-09-01 10:30:00 +10:00` | `"2026-09-01T10:30:00+10:00[+10:00]"` | **fails** |
-| `bare-variant-6.md` | `2026-09-01T10:30:00.123-05:00` | `"2026-09-01T10:30:00.123-05:00[-05:00]"` | **fails** |
-| `quoted-date.md` | `"2026-09-02"` | `"2026-09-02"` | parses |
+| `2026-09-01` | `"2026-09-01T00:00:00Z"` | parses | parses |
+| `2026-09-01T10:30:00Z` | `"2026-09-01T10:30:00+00:00[UTC]"` | **fails** | **Invalid Date** |
+| `2026-09-01T10:30:00` | `"2026-09-01T10:30:00+00:00[UTC]"` | **fails** | **Invalid Date** |
+| `2026-09-01 10:30:00` | `"2026-09-01T10:30:00+00:00[UTC]"` | **fails** | **Invalid Date** |
+| `2026-09-01T10:30:00+10:00` | `"2026-09-01T10:30:00+10:00[+10:00]"` | **fails** | **Invalid Date** |
+| `2026-09-01 10:30:00 +10:00` | `"2026-09-01T10:30:00+10:00[+10:00]"` | **fails** | **Invalid Date** |
+| `2026-09-01T10:30:00.123-05:00` | `"2026-09-01T10:30:00.123-05:00[-05:00]"` | **fails** | **Invalid Date** |
+| `"2026-09-02"` (quoted) | `"2026-09-02"` | parses | parses |
 
-Without the `[...]` suffix, every one of those strings parses in Hugo 0.164
-with the correct offset. Any front matter or dataset value with a time can
-trigger this, not just `date`.
+The API values were logged in the Hugo site. Each site has the same
+`date-probe` script, which logs `[date-probe]` lines to the editor console so
+you can check them in any of the three.
 
-Two things make it worse:
+Without the `[...]` suffix, every one of those strings parses with the correct
+offset. Any front matter, data file, or component prop with a time can trigger
+this, not just `date`.
 
-- **The build keeps failing.** Hugo's build returns an error before the
-  renderer clears its pending changes, so every later render retries the same
-  failing build. That's why every component stays broken.
-- **The error card doesn't help.** It shows only the error count. Its "open the
-  console" hint never appears either: the hint matches `/logged \d+ errors/`
-  (`integrations/hugo/browser/errors.ts`), but Hugo's message is
-  `logged 1 error(s)`.
+Hugo fails hardest for two reasons:
+
+- It parses every page's date during the build, and a single logged error
+  fails the whole build.
+- editable-regions then retries the same failing build on every render.
+
+See [`hugo/README.md`](hugo/README.md) for details.
 
 ## Workaround
 
@@ -75,8 +57,8 @@ strings through unchanged.
 
 ## Suggested fix
 
-- Strip a trailing RFC 9557 annotation (`[...]`) from timestamp strings before
-  sending them to the renderer, for both front matter and datasets. The offset
-  is already in the string, so Hugo still gets the right instant.
-- Show Hugo's logged error text on the error card, and fix the hint regex so it
-  matches `error(s)`.
+Strip a trailing RFC 9557 annotation (`[...]`) from timestamp strings before
+data reaches any renderer: front matter, datasets, and component props. The
+offset is already in the string, so the instant stays correct. For Hugo, also
+stop retrying a failed build, and show Hugo's logged error text on the error
+card.

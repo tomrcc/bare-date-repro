@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		{% include "head" %}
+	</head>
+	<body>
+		<h1>{{ title }}</h1>
+		<p>Page date: {{ page.date | dateToRfc3339 }}</p>
+		<div data-editable="component" data-component="card" data-prop="card">
+			{% includeWith "card", card %}
+		</div>
+		<div data-editable="component" data-component="event-card" data-prop="event">
+			{% includeWith "event-card", event %}
+		</div>
+		<div data-editable="component" data-component="post-list">
+			{% include "post-list" %}
+		</div>
+		<div data-editable="component" data-component="post-dates">
+			{% include "post-dates" %}
+		</div>
+	</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "name": "astro-bare-date-repro",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "dependencies": {
+    "@cloudcannon/editable-regions": "0.0.21",
+    "astro": "^7.3.5"
+  }
+}
